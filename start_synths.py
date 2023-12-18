@@ -1,17 +1,14 @@
 from time import sleep
-# from sc3f import server_boot, server_quit, set_synth, start_synth, stop_synth
-# from sc3f import Synths_MGMT
-from sc3.all import Synth   #, synthdef, SinOsc, EnvGen, Env, Out
-# from importlib import import_module
-# from pathlib import Path
-# import os
-# ThreadS = os.path.abspath(r'../scripts/ThreadS.py')
-# print(ThreadS)
-# ThreadS = import_module(ThreadS)
-from scripts import ThreadS
-# from ThreadS import ThreadS
+from sc3.all import Synth, LFSaw, Osc, SinOsc, SyncSaw   #, synthdef, SinOsc, EnvGen, Env, Out
+from tools import ThreadS
+from sc3.synth.server import Server
 
-# import numpy as np
+waves_shapes = {
+                "lf_saw": LFSaw,
+                "pure_wave": Osc,
+                "sin_osc": SinOsc,
+                "sync_saw": SyncSaw
+            }
 
 # harmonics = [1, 2, 4, 6, 8, 10]
 # # freq_eq = [np.linspace(0, 20000, 0.1), np.array(np.linspace(0, 1, 0.001))]
@@ -47,17 +44,33 @@ from scripts import ThreadS
 # n.set('amp', 0.05)
 # n.set('freq', 550)
 
-
 sleep(1)
 
-# Ascencion
+#################### Ascencion
 freq=36.71
-harmonics = [2, 4, 6, 8, 10, 12, 14]
-synths = [ThreadS(target=Synth, args=('ha_reso', freq*h, 1/len(harmonics))) for h in harmonics]
-[t.start() for t in synths]
+# harmonics = [2, 4, 6, 8, 10, 12, 14]
+# synths = [ThreadS(target=Synth, args=('new_paused', 'ha_reso', freq*h, 1/len(harmonics))) for h in harmonics]
+# [t.start() for t in synths]
+# synths = [t.join() for t in synths]
+
+# sleep(1)
+# [n.release() for n in synths]
+
+
+
+t = ThreadS(target=Synth.new_paused, args=('test', 440*3, 1))
+t.start()
+t = t.join()
+# message = t.get('12', 'test')
+# print(message)
 sleep(1)
-synths = [t.join() for t in synths]
-[n.release() for n in synths]
+t.release()
+
+r = Server.free_all('127.0.0.1:57110')
+
+# Synth('ha_reso', freq, None, add_action='addToHead', register=True)
+
+
 
 
 # n.release()

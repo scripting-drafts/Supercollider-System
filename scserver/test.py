@@ -1,6 +1,5 @@
 from time import sleep
-# from sc3f import server_boot, server_quit, set_synth, start_synth, stop_synth
-from sc3f import Server_MGMT, Synths_MGMT
+from scserver.scframework.sc3f import Server_MGMT, Synths_MGMT
 from sc3.all import Synth, synthdef, SinOsc, EnvGen, Env, Out
 
 servers = Server_MGMT()

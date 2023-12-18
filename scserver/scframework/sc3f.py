@@ -1,39 +1,46 @@
 from math import pi
 # from os import times
 from subprocess import getoutput
-# from threading import Thread
-# from time import sleep
 from sc3.all import *
 from sc3.all import SinOsc, EnvGen, Out, Mix, LPF18
 
-# class ThreadR(Thread):
-#     def __init__(self, group=None, target=None, name=None,
-#                  args=(), kwargs={}, Verbose=None):
-#         Thread.__init__(self, group, target, name, args, kwargs)
-#         self._return = None
-#     def run(self):
-#         print(type(self._target))
-#         if self._target is not None:
-#             self._return = self._target(*self._args,
-#                                                 **self._kwargs)
-#     def join(self, *args):
-#         Thread.join(self, *args)
-#         return self._return
-
-class Server_MGMT():
-    def server_boot(self):
+class Server_MGMT:
+    '''
+    Server: '127.0.0.1:57110'
+    OSC Interface: '127.0.0.1:57120'
+    '''
+    def server_boot():
         # s.options.program = r'C:\Program Files\SuperCollider-3.12.2\scsynth.exe'
         s.boot()
         s.dump_tree(True)
         return s
 
-    def server_quit(self, sv):
+    def server_quit(sv):
         sv.free_nodes()
         server_kill = getoutput("taskkill /IM scsynth.exe /F")
         print(server_kill)
 
-class Synths_MGMT():
-    def set_synth(self):
+    def free_nodes(sv):
+        sv.free_nodes()
+
+class Synths_MGMT:
+    
+    def set_synth():
+        def test(freq=440, amp=1, pan=0, gate=1):
+            ...
+
+        sd = SynthDef('test', test)
+        sd.add()
+
+        @synthdef
+        def ha_reso(freq=36.71, amp=1, gate=1):
+            # env = EnvGen(Env.adsr(), gate, done_action=2)
+            harmonics = [2, 4, 6, 8, 10]
+            # amp = amp / len(harmonics)
+            # base_sigs = [SinOsc(freq * h, phase=pi) * amp for h in harmonics]
+            # sig = Mix.new(base_sigs)
+            # Out(0, (sig * env).dup())
+            
         @synthdef
         def sine(freq=440, amp=1, gate=1):
             sig = SinOsc(freq) * amp
@@ -53,12 +60,7 @@ class Synths_MGMT():
             # harmonics = [1, 2, 4, 6, 8, 10]
             # freq = [x for x in range(0., freq, 0.1)]
 
-            # waves_shapes = {
-            #     "LFSaw": LFSaw(),
-            #     "pure_wave": Osc(),
-            #     "sin_osc": SinOSC(),
-            #     "sync_saw": SyncSaw()
-            # }
+            
 
             # f = {
             #     "low_cut_LOW" : freq[0],
@@ -86,14 +88,7 @@ class Synths_MGMT():
             Out(0, (sig * env).dup())
             # Out(0, sig.dup())
 
-        @synthdef
-        def ha_reso(freq=36.71, amp=1, gate=1):
-            env = EnvGen(Env.adsr(), gate, done_action=2)
-            harmonics = [2, 4, 6, 8, 10]
-            amp = amp / len(harmonics)
-            base_sigs = [SinOsc(freq * h, phase=pi) * amp for h in harmonics]
-            sig = Mix.new(base_sigs)
-            Out(0, (sig * env).dup())
+        
 
         sine.dump_ugens()
 

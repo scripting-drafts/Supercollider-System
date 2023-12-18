@@ -1,9 +1,9 @@
 import time
-from sc3f import Server_MGMT, Synths_MGMT
+from scframework.sc3f import Server_MGMT, Synths_MGMT
 
 is_server_up = False
-servers = Server_MGMT()
-synth_setup = Synths_MGMT()
+servers = Server_MGMT
+synth_setup = Synths_MGMT
 
 while True:
     try:
