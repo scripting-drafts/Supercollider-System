@@ -46,7 +46,7 @@ waves_shapes = {
 
 sleep(1)
 
-#################### Ascencion
+#################### Ascension
 freq=36.71
 # harmonics = [2, 4, 6, 8, 10, 12, 14]
 # synths = [ThreadS(target=Synth, args=('new_paused', 'ha_reso', freq*h, 1/len(harmonics))) for h in harmonics]
@@ -55,7 +55,6 @@ freq=36.71
 
 # sleep(1)
 # [n.release() for n in synths]
-
 
 
 t = ThreadS(target=Synth.new_paused, args=('test', 440*3, 1))
