@@ -2,7 +2,8 @@ from math import pi
 # from os import times
 from subprocess import getoutput
 from sc3.all import *
-from sc3.all import SinOsc, EnvGen, Out, Mix, LPF18
+from sc3.all import SinOsc, EnvGen, Out, Mix, LPF18, LFSaw
+
 
 class Server_MGMT:
     '''
@@ -26,10 +27,35 @@ class Server_MGMT:
 class Synths_MGMT:
     
     def set_synth():
-        def test(freq=440, amp=1, pan=0, gate=1):
+        '''
+        attack_time: float = 0.01,
+        decay_time: float = 0.3,
+        sustain_level: float = 0.5,
+        release_time: float = 1,
+        peak_level: float = 1,
+        curve: float = -4,
+        bias: float = 0
+        '''
+        def wobble(freq=440, amp=0, gate=1, a = 0.01, d = 0.3, s = 0.5, r = 1, phase = 0.):
+            env = EnvGen(Env.adsr(a, d, s, r), gate, done_action=2)
+            waves = SinOsc.ar(freq, phase=pi) * amp
+            LPF_control = SinOsc.kr(freq * 10, phase=pi) * amp
+            LPF_control_2 = SinOsc.kr(36.71/2, phase=phase) * amp
+            LPF_control_3 = LFSaw.kr(36.71/2) * amp
+            sig = LPF18(waves, LPF_control_3, 1, 180)    # last 90
+            Out([0, 1], sig * env)
             ...
 
-        sd = SynthDef('test', test)
+            # asd = LPF18.ar(SinOsc.ar(freq=293.6, phase=pi), SinOsc.kr(freq=293.6, phase=pi), 90)
+            
+        # vars = [Out.ar([0, 1], LPF18.ar(SinOsc.ar(freq=293.6, phase=pi), SinOsc.kr(freq=293.6, phase=pi), 90))]
+        sd = SynthDef('wobble', wobble)
+        sd.add()
+
+        def test_1(freq=440, amp=1, pan=1, gate=1):
+            ...
+
+        sd = SynthDef('test_1', test_1)
         sd.add()
 
         @synthdef

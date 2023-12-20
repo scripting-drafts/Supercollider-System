@@ -1,2 +1,2 @@
-from .ThreadS import *
-from .custom_arange import *
+from . ThreadS import *
+__all__ = ['ThreadS']
