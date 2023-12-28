@@ -2,13 +2,17 @@ from math import pi
 # from os import times
 from subprocess import getoutput
 from sc3.all import *
-from sc3.all import SinOsc, EnvGen, Out, Mix, LPF18, LFSaw
-
+from sc3.synth.ugen import *
+from sc3.base.builtins import reciprocal, dbamp, clip
+# from sc3.synth.ugens.trig import clip
+from sc3.all import SinOsc, EnvGen, Out, Mix, LPF18, LPF, LFSaw, Lag3, \
+    PinkNoise, Integrator, Dust, LFNoise1, DynKlank, DetectSilence, Line
 
 class Server_MGMT:
     '''
     Server: '127.0.0.1:57110'
     OSC Interface: '127.0.0.1:57120'
+    # TODO: rewrite 
     '''
     def server_boot():
         # s.options.program = r'C:\Program Files\SuperCollider-3.12.2\scsynth.exe'
@@ -25,38 +29,106 @@ class Server_MGMT:
         sv.free_nodes()
 
 class Synths_MGMT:
-    
     def set_synth():
-        '''
-        attack_time: float = 0.01,
-        decay_time: float = 0.3,
-        sustain_level: float = 0.5,
-        release_time: float = 1,
-        peak_level: float = 1,
-        curve: float = -4,
-        bias: float = 0
-        '''
-        def wobble(freq=440, amp=0, gate=1, a = 0.01, d = 0.3, s = 0.5, r = 1, phase = 0.):
-            env = EnvGen(Env.adsr(a, d, s, r), gate, done_action=2)
-            waves = SinOsc.ar(freq, phase=pi) * amp
-            LPF_control = SinOsc.kr(freq * 10, phase=pi) * amp
-            LPF_control_2 = SinOsc.kr(36.71/2, phase=phase) * amp
-            LPF_control_3 = LFSaw.kr(36.71/2) * amp
-            sig = LPF18(waves, LPF_control_3, 1, 180)    # last 90
+        # def wobble(freq=440, amp=0, gate=1, a = 0.01, d = 0.3, s = 0.5, r = 1, phase = 0.):
+        #     env = EnvGen(Env.adsr(a, d, s, r), gate, done_action=0)
+        #     waves = SinOsc.ar(freq, phase=pi) * amp
+        #     LPF_control = SinOsc.kr(freq * 10, phase=pi) * amp
+        #     LPF_control_2 = SinOsc.kr(36.71/2, phase=phase) * amp
+        #     LPF_control_3 = LFSaw.kr(36.71/2) * amp
+        #     sig = LPF18(waves, LPF_control_3, 1, 180)    # last 90
+        #     Out([0, 1], sig * env)
+        #     ...
+
+        #     # asd = LPF18.ar(SinOsc.ar(freq=293.6, phase=pi), SinOsc.kr(freq=293.6, phase=pi), 90)
+            
+        # # vars = [Out.ar([0, 1], LPF18.ar(SinOsc.ar(freq=293.6, phase=pi), SinOsc.kr(freq=293.6, phase=pi), 90))]
+        # sd = SynthDef('wobble', wobble)
+        # sd.add()
+
+        # @synthdef
+        def mybell(freq=440, amp=1, gate=1, a = 0.01, d = 0.3, s = 0.5, r = 1, phase = 0.):
+            lag=10
+            i_doneAction=0
+            env = EnvGen(Env.adsr(a, d, s, r), gate, done_action=i_doneAction)
+            decayscale=1
+            # t_trig=1
+            sing_switch=0
+            freqscale = freq / 2434
+            # freqscale = Lag3.kr(freqscale, lag)
+            # decayscale = Lag3.kr(decayscale, lag)
+            
+            # sing = 
+            sing_switch = clip(sing_switch, str(0), str(1))
+            
+            input = sing_switch * LPF.ar(
+                    LPF.ar(PinkNoise.ar() * Integrator.kr(sing_switch * 0.001, 0.999).linexp(0, 1, 0.01, 1) * amp,
+                2434 * freqscale) + Dust.ar(0.1),
+            10000 * freqscale) * dbamp(LFNoise1.kr(0.5).range(-45, -30))
+
+            frequencies = [
+                (LFNoise1.kr(0.5).range(2424, 2444)) + Line.kr(20, 0, 0.5),
+                (LFNoise1.kr(0.5).range(2424, 2444)) + Line.kr(20, 0, 0.5) + LFNoise1.kr(0.5).range(1,3),
+                LFNoise1.kr(1.5).range(5435, 5440) - Line.kr(35, 0, 1),
+                LFNoise1.kr(1.5).range(5480, 5485) - Line.kr(10, 0, 0.5),
+                LFNoise1.kr(2).range(8435, 8445) + Line.kr(15, 0, 0.05),
+                LFNoise1.kr(2).range(8665, 8670),
+                LFNoise1.kr(2).range(8704, 8709),
+                LFNoise1.kr(2).range(8807, 8817),
+                LFNoise1.kr(2).range(9570, 9607),
+                LFNoise1.kr(2).range(10567, 10572) - Line.kr(20, 0, 0.05),
+                LFNoise1.kr(2).range(10627, 10636) + Line.kr(35, 0, 0.05),
+                LFNoise1.kr(2).range(14689, 14697) - Line.kr(10, 0, 0.05)
+                ]
+            
+            amplitudes = [
+                dbamp(LFNoise1.kr(1).range(-10, -5)),
+                dbamp(LFNoise1.kr(1).range(-20, -10)),
+                dbamp(LFNoise1.kr(1).range(-12, -6)),
+                dbamp(LFNoise1.kr(1).range(-12, -6)),
+                dbamp(-20),
+                dbamp(-20),
+                dbamp(-20),
+                dbamp(-25),
+                dbamp(-10),
+                dbamp(-20),
+                dbamp(-20),
+                dbamp(-25)
+                ]
+            
+            ringtimes = [
+                20 * freqscale.pow(0.2),
+                20 * freqscale.pow(0.2),
+                5,
+                5,
+                0.6,
+                0.5,
+                0.3,
+                0.25,
+                0.4,
+                0.5,
+                0.4,
+                0.6
+                ] * pow(0.5, reciprocal(freqscale))
+            
+
+            sig = DynKlank.ar([
+                frequencies,
+                amplitudes,
+                ringtimes], input, freqscale, 0, decayscale)
+            
+            # DetectSilence.ar(sig, done_action=i_doneAction)
             Out([0, 1], sig * env)
             ...
 
-            # asd = LPF18.ar(SinOsc.ar(freq=293.6, phase=pi), SinOsc.kr(freq=293.6, phase=pi), 90)
-            
-        # vars = [Out.ar([0, 1], LPF18.ar(SinOsc.ar(freq=293.6, phase=pi), SinOsc.kr(freq=293.6, phase=pi), 90))]
-        sd = SynthDef('wobble', wobble)
-        sd.add()
+        st = SynthDef('mybell', mybell)
+        st.add()
 
-        def test_1(freq=440, amp=1, pan=1, gate=1):
-            ...
+        # def test_1(freq=440, amp=1, pan=1, gate=1):
+        #     ...
 
-        sd = SynthDef('test_1', test_1)
-        sd.add()
+        # sd = SynthDef('test_1', test_1)
+        # sd.add()
 
         @synthdef
         def ha_reso(freq=36.71, amp=1, gate=1):

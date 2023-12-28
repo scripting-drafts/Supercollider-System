@@ -35,9 +35,14 @@ class SamplesLibGenerate:
 
         return n
 
-    def get_notes(self):
+    def get_notes(self, kind = 'bass'):
+        kinds = {
+            'piano': 64,
+            'bass': 24
+        }
+        
         n = self.get_harmonic_range()
-        notes_amount = random.randint(0, 64)
+        notes_amount = random.randint(0, kinds[kind])
         # midi_notes = [n[np.random.choice(self.scale, p=[.5 for x in self.scale if x != self.scale[0]].insert(0, .6))]
         #                 for _ in range((notes_amount))]
         midi_notes = [n[x] for x in random.sample(self.scale, notes_amount, counts=[6 for _ in self.scale])]

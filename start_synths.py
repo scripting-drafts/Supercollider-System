@@ -69,7 +69,7 @@ freq=36.71
 def s_func(freq=440, amp=1, gate=1, a = 0.01, d = 0.3, s = 0.5, r = 1, phase = 0.):
 
     '''[freq, amp, gate, a, d, s, r]'''
-    t = Synth('wobble', None, None)
+    t = Synth('mybell', None)
     # sleep(a + d + s + r)
     # t.release()
     return t
@@ -113,23 +113,26 @@ def get_phase():
     return phase
     
 
-### TEST
-try:
-    t = s_func()
-    sleep(3)
+t = s_func()
+sleep(200)
 
-    while True:
-        i_func(t, freq=739, amp=float_choice(), gate=int_choice(), a=a_choice(), d=float_choice(), s=a_choice(), r=float_choice(), phase=get_phase())
+# ### TEST
+# try:
+#     t = s_func()
+#     sleep(3)
 
-except KeyboardInterrupt:
-    t.release()
+#     while True:
+#         i_func(t, freq=739, amp=float_choice(), gate=int_choice(), a=a_choice(), d=float_choice(), s=a_choice(), r=float_choice(), phase=get_phase())
+
+# except KeyboardInterrupt:
+#     t.release()
     
-a = 0.01
-d = 0.3
-s = 0.5
-r = 0.1
+# a = 0.01
+# d = 0.3
+# s = 0.5
+# r = 0.1
 
-bpm = 140
+# bpm = 140
 
 
 
